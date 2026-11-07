@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formulario de Matrícula</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      text-align: center;
+      background: linear-gradient(135deg, #1a0033, #3a0a6b, #0a0a3a);
+      min-height: 100vh;
+    }
+    h1 { text-shadow: 0 0 10px #00e5ff; }
+    h2 { color: #00e5ff; }
+
+    .contenedor {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .caja {
+      background: #001428;
+      border: 2px solid #00e5ff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00e5ff;
+      padding: 20px 24px;
+      width: 100%;
+      max-width: 1000px;
+      box-sizing: border-box;
+      text-align: left;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 0 24px;
+    }
+    .lista {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 4px 20px;
+      margin-top: 8px;
+    }
+    .caja h2 { margin-top: 0; }
+    .caja h2.sub { margin-top: 24px; }
+
+    .campo { margin-top: 14px; }
+    .campo > label { display: block; font-weight: bold; }
+    .hint { display: block; color: #9fb4c7; font-size: 12px; margin: 2px 0 4px; }
+
+    input[type="text"], input[type="date"], input[type="tel"],
+    input[type="email"], select {
+      width: 100%;
+      box-sizing: border-box;
+      background: #001428;
+      color: #fff;
+      border: 1px solid #00e5ff;
+      border-radius: 4px;
+      padding: 7px;
+    }
+    input[readonly] { opacity: .7; }
+    .invalido { border-color: red !important; }
+    .fila { display: flex; gap: 8px; }
+    .fila input { width: 50%; }
+
+    .opcion { display: inline-block; margin-right: 14px; }
+    .curso { display: block; margin: 4px 0; }
+
+    .error { color: red; font-size: 13px; font-weight: bold; margin: 4px 0 0; min-height: 0; }
+
+    .botones { margin: 25px 0; }
+    button {
+      padding: 10px 20px;
+      margin: 0 5px;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .limpiar { background: #555; }
+    .matricular { background: #1a1aff; box-shadow: 0 0 8px #00e5ff; }
+    .imprimir { background: #0a8a5a; }
+
+    #resumen {
+      display: none;
+      max-width: 780px;
+      margin: 0 auto 30px;
+      background: #001428;
+      border: 2px solid #00e5ff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #00e5ff;
+      padding: 20px;
+      text-align: left;
+    }
+    #resumen h3 { color: #00e5ff; margin: 16px 0 6px; border-bottom: 1px solid #00e5ff55; }
+    #resumen p { margin: 4px 0; }
+    #resumen .total { font-size: 20px; color: #00e5ff; font-weight: bold; }
+
+    @media print {
+      body { background: #fff; color: #000; }
+      .contenedor, .botones, h1, h2, p.intro { display: none; }
+      #resumen { display: block; border: none; box-shadow: none; background: #fff; color: #000; }
+      #resumen h3, #resumen .total { color: #000; }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Universidad Científica del Sur</h1>
+  <h2>FORMULARIO DE MATRÍCULA</h2>
+  <p class="intro">Proceso de matrícula 2027-I</p>
+
+  <form id="form" novalidate>
+    <div class="contenedor">
+
+      <div class="caja">
+        <h2>1. DATOS DEL ALUMNO</h2>
+        <div class="grid">
+
+        <div class="campo">
+          <label for="nombres">Nombres</label>
+          <span class="hint">Escribe tus nombres (solo letras)</span>
+          <input type="text" id="nombres" placeholder="Ej: Luis Alberto">
+          <p class="error" id="error-nombres"></p>
+        </div>
+
+        <div class="campo">
+          <label for="apellidos">Apellidos</label>
+          <span class="hint">Escribe tus apellidos (solo letras)</span>
+          <input type="text" id="apellidos" placeholder="Ej: Rioja Pérez">
+          <p class="error" id="error-apellidos"></p>
+        </div>
+
+        <div class="campo">
+          <label>Tipo de documento</label>
+          <span class="hint">Elige el documento con el que te identificas</span>
+          <span class="opcion"><label><input type="radio" name="tipoDoc" value="DNI" checked> DNI</label></span>
+          <span class="opcion"><label><input type="radio" name="tipoDoc" value="C.E."> C.E.</label></span>
+        </div>
+
+        <div class="campo">
+          <label for="doc">N.º de documento</label>
+          <span class="hint" id="hint-doc">DNI: exactamente 8 dígitos (solo números)</span>
+          <input type="text" id="doc" placeholder="Ej: 12345678" maxlength="8" inputmode="numeric">
+          <p class="error" id="error-doc"></p>
+        </div>
+
+        <div class="campo">
+          <label for="celular">Teléfono celular</label>
+          <span class="hint">9 dígitos, empieza con 9</span>
+          <input type="tel" id="celular" placeholder="Ej: 987654321" maxlength="9" inputmode="numeric">
+          <p class="error" id="error-celular"></p>
+        </div>
+
+        <div class="campo">
+          <label for="correo">Correo electrónico</label>
+          <span class="hint">Debe contener @</span>
+          <input type="email" id="correo" placeholder="Ej: alumno@correo.com">
+          <p class="error" id="error-correo"></p>
+        </div>
+
+        <div class="campo">
+          <label for="fecha">Fecha de nacimiento</label>
+          <span class="hint">Debes ser mayor de 16 años</span>
+          <input type="date" id="fecha" min="1900-01-01" max="9999-12-31">
+          <p class="error" id="error-fecha"></p>
+        </div>
+
+        <div class="campo">
+          <label>Sexo</label>
+          <span class="hint">Selecciona una opción</span>
+          <span class="opcion"><label><input type="radio" name="sexo" value="Masculino"> Masculino</label></span>
+          <span class="opcion"><label><input type="radio" name="sexo" value="Femenino"> Femenino</label></span>
+          <p class="error" id="error-sexo"></p>
+        </div>
+
+        <div class="campo">
+          <label>Colegio de procedencia</label>
+          <span class="hint">Tipo de colegio donde terminaste el colegio</span>
+          <span class="opcion"><label><input type="radio" name="colegio" value="Nacional"> Nacional</label></span>
+          <span class="opcion"><label><input type="radio" name="colegio" value="Particular"> Particular</label></span>
+          <p class="error" id="error-colegio"></p>
+        </div>
+        </div>
+      </div>
+
+      <div class="caja">
+        <h2>2. DATOS DEL APODERADO</h2>
+        <div class="grid">
+
+        <div class="campo">
+          <label for="aNombres">Nombres</label>
+          <span class="hint">Nombres del apoderado (solo letras)</span>
+          <input type="text" id="aNombres" placeholder="Ej: María Elena">
+          <p class="error" id="error-aNombres"></p>
+        </div>
+
+        <div class="campo">
+          <label for="aApellidos">Apellidos</label>
+          <span class="hint">Apellidos del apoderado (solo letras)</span>
+          <input type="text" id="aApellidos" placeholder="Ej: Pérez Gómez">
+          <p class="error" id="error-aApellidos"></p>
+        </div>
+
+        <div class="campo">
+          <label for="aParentesco">Parentesco</label>
+          <span class="hint">Relación con el alumno</span>
+          <select id="aParentesco">
+            <option value="">-- Seleccione --</option>
+            <option>Padre</option>
+            <option>Madre</option>
+            <option>Tutor legal</option>
+            <option>Otro familiar</option>
+          </select>
+          <p class="error" id="error-aParentesco"></p>
+        </div>
+
+        <div class="campo">
+          <label for="aDoc">DNI del apoderado</label>
+          <span class="hint">8 dígitos</span>
+          <input type="text" id="aDoc" placeholder="Ej: 87654321" maxlength="8" inputmode="numeric">
+          <p class="error" id="error-aDoc"></p>
+        </div>
+
+        <div class="campo">
+          <label for="aCelular">Teléfono celular</label>
+          <span class="hint">9 dígitos, empieza con 9</span>
+          <input type="tel" id="aCelular" placeholder="Ej: 912345678" maxlength="9" inputmode="numeric">
+          <p class="error" id="error-aCelular"></p>
+        </div>
+
+        <div class="campo">
+          <label for="aCorreo">Correo electrónico</label>
+          <span class="hint">Debe contener @</span>
+          <input type="email" id="aCorreo" placeholder="Ej: apoderado@correo.com">
+          <p class="error" id="error-aCorreo"></p>
+        </div>
+        </div>
+      </div>
+
+      <div class="caja">
+        <h2>3. CARRERA</h2>
+        <div class="campo" style="max-width: 380px;">
+          <label for="carrera">Carrera profesional</label>
+          <span class="hint">Elige una de las 9 opciones</span>
+          <select id="carrera">
+            <option value="">-- Seleccione una carrera --</option>
+            <option>Administración</option>
+            <option>Arquitectura</option>
+            <option>Biología Marina</option>
+            <option>Contabilidad</option>
+            <option>Derecho</option>
+            <option>Ingeniería de Sistemas</option>
+            <option>Marketing</option>
+            <option>Medicina Humana</option>
+            <option>Psicología</option>
+          </select>
+          <p class="error" id="error-carrera"></p>
+        </div>
+
+        <h2 class="sub">4. CURSOS</h2>
+        <span class="hint">Precio por curso: S/ 100.00 (elige de 1 a 8)</span>
+
+        <div class="lista">
+        <label class="curso"><input type="checkbox" class="c" value="Historia I"> Historia I</label>
+        <label class="curso"><input type="checkbox" class="c" value="Matemáticas"> Matemáticas</label>
+        <label class="curso"><input type="checkbox" class="c" value="Química II"> Química II</label>
+        <label class="curso"><input type="checkbox" class="c" value="Literatura"> Literatura</label>
+        <label class="curso"><input type="checkbox" class="c" value="Economía"> Economía</label>
+        <label class="curso"><input type="checkbox" class="c" value="Ciencias"> Ciencias</label>
+        <label class="curso"><input type="checkbox" class="c" value="Oratoria"> Oratoria</label>
+        <label class="curso"><input type="checkbox" class="c" value="Marketing"> Marketing</label>
+        </div>
+
+        <h2>TOTAL: S/ <span id="total">0.00</span></h2>
+        <p class="error" id="error-cursos"></p>
+
+        <h2 class="sub">5. TURNOS DE ESTUDIO</h2>
+        <span class="hint">Elige al menos un turno</span>
+        <div class="lista">
+        <label class="curso"><input type="checkbox" class="t" value="Mañana"> Mañana</label>
+        <label class="curso"><input type="checkbox" class="t" value="Tarde"> Tarde</label>
+        <label class="curso"><input type="checkbox" class="t" value="Noche"> Noche</label>
+        </div>
+        <p class="error" id="error-turnos"></p>
+      </div>
+
+    </div>
+
+    <div class="botones">
+      <button type="reset" class="limpiar">LIMPIAR</button>
+      <button type="submit" class="matricular">MATRICULARSE</button>
+      <button type="button" class="imprimir" id="btnImprimir">IMPRIMIR</button>
+    </div>
+  </form>
+
+  <div id="resumen"></div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const marcados = (sel) => [...document.querySelectorAll(sel + ":checked")];
+    const radio = (name) => document.querySelector('input[name="' + name + '"]:checked');
+
+    function validar(ok, id, mensaje, campo) {
+      $("error-" + id).textContent = ok ? "" : mensaje;
+      if (campo) $(campo).classList.toggle("invalido", !ok);
+      return !!ok;
+    }
+
+    const esDNI = (v) => /^\d{8}$/.test(v);
+    const esCelular = (v) => /^9\d{8}$/.test(v);
+    const esCorreo = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+    function vDoc() {
+      const v = $("doc").value;
+      if (radio("tipoDoc").value === "DNI")
+        return validar(esDNI(v), "doc", "Ingrese un documento de 8 dígitos.", "doc");
+      return validar(/^\d{9,12}$/.test(v), "doc", "Ingrese un C.E. de 9 a 12 dígitos.", "doc");
+    }
+
+    function ajustarTipoDoc() {
+      const dni = radio("tipoDoc").value === "DNI";
+      $("doc").value = "";
+      $("doc").maxLength = dni ? 8 : 12;
+      $("doc").placeholder = dni ? "Ej: 12345678" : "Ej: 123456789";
+      $("hint-doc").textContent = dni
+        ? "DNI: exactamente 8 dígitos (solo números)"
+        : "C.E.: de 9 a 12 dígitos (solo números)";
+      $("error-doc").textContent = "";
+      $("doc").classList.remove("invalido");
+    }
+    const esTexto = (v) => /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' ]{2,}$/.test(v.trim());
+    function vNombres() {
+      return validar(esTexto($("nombres").value), "nombres", "Ingrese sus nombres (solo letras).", "nombres");
+    }
+    function vApellidos() {
+      return validar(esTexto($("apellidos").value), "apellidos", "Ingrese sus apellidos (solo letras).", "apellidos");
+    }
+    function edadAl1Oct() {
+      const f = $("fecha").value;
+      if (!f) return null;
+      const nac = new Date(f + "T00:00:00");
+      const corte = new Date(new Date().getFullYear(), 9, 1);
+      let edad = corte.getFullYear() - nac.getFullYear();
+      if (corte < new Date(corte.getFullYear(), nac.getMonth(), nac.getDate())) edad--;
+      return edad;
+    }
+    function vFecha() {
+      const v = $("fecha").value;
+      if (v === "")
+        return validar(false, "fecha", "Seleccione su fecha de nacimiento.", "fecha");
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v) || v < "1900-01-01")
+        return validar(false, "fecha", "El año debe tener 4 dígitos (desde 1900).", "fecha");
+      const edad = edadAl1Oct();
+      return validar(edad >= 16, "fecha", "Debe tener 16 años o más al 1 de octubre.", "fecha");
+    }
+    function vCorreo() {
+      return validar(esCorreo($("correo").value), "correo", "Ingrese un correo válido que contenga @.", "correo");
+    }
+    function vCelular() {
+      return validar(esCelular($("celular").value), "celular", "El celular debe tener 9 dígitos y comenzar con 9.", "celular");
+    }
+    function vSexo()    { return validar(radio("sexo"), "sexo", "Seleccione una opción de sexo."); }
+    function vColegio() { return validar(radio("colegio"), "colegio", "Seleccione el colegio de procedencia."); }
+
+    function vANombres() {
+      return validar(esTexto($("aNombres").value), "aNombres", "Ingrese los nombres del apoderado (solo letras).", "aNombres");
+    }
+    function vAApellidos() {
+      return validar(esTexto($("aApellidos").value), "aApellidos", "Ingrese los apellidos del apoderado (solo letras).", "aApellidos");
+    }
+    function vAParentesco() {
+      return validar($("aParentesco").value !== "", "aParentesco", "Seleccione el parentesco.", "aParentesco");
+    }
+    function vADoc() {
+      return validar(esDNI($("aDoc").value), "aDoc", "Ingrese un DNI de 8 dígitos.", "aDoc");
+    }
+    function vACelular() {
+      return validar(esCelular($("aCelular").value), "aCelular", "El celular debe tener 9 dígitos y comenzar con 9.", "aCelular");
+    }
+    function vACorreo() {
+      return validar(esCorreo($("aCorreo").value), "aCorreo", "Ingrese un correo válido que contenga @.", "aCorreo");
+    }
+
+    function vCarrera() {
+      return validar($("carrera").value !== "", "carrera", "Seleccione una carrera.", "carrera");
+    }
+    function vCursos() {
+      const n = marcados(".c").length;
+      return validar(n >= 1 && n <= 8, "cursos", "Seleccione entre 1 y 8 cursos.");
+    }
+    function vTurnos() {
+      return validar(marcados(".t").length >= 1, "turnos", "Seleccione al menos un turno de estudio.");
+    }
+
+    function calcularTotal() {
+      $("total").textContent = (marcados(".c").length * 100).toFixed(2);
+    }
+    ["doc", "celular", "aDoc", "aCelular"].forEach(id => {
+      $(id).addEventListener("input", () => {
+        $(id).value = $(id).value.replace(/\D/g, "");
+      });
+    });
+
+    const enVivo = [
+      ["doc", "input", vDoc], ["nombres", "input", vNombres], ["apellidos", "input", vApellidos],
+      ["correo", "input", vCorreo], ["celular", "input", vCelular],
+      ["aNombres", "input", vANombres], ["aApellidos", "input", vAApellidos],
+      ["aDoc", "input", vADoc], ["aCelular", "input", vACelular],
+      ["aCorreo", "input", vACorreo], ["aParentesco", "change", vAParentesco], ["carrera", "change", vCarrera]
+    ];
+    enVivo.forEach(([id, ev, fn]) => $(id).addEventListener(ev, fn));
+
+    $("fecha").addEventListener("input", () => {
+      const v = $("fecha").value;
+      if (/^\d{5,}-/.test(v)) $("fecha").value = v.replace(/^(\d{4})\d+/, "$1");
+    });
+    $("fecha").addEventListener("change", vFecha);
+    document.querySelectorAll('input[name="tipoDoc"]').forEach(r => r.addEventListener("change", ajustarTipoDoc));
+    document.querySelectorAll('input[name="sexo"]').forEach(r => r.addEventListener("change", vSexo));
+    document.querySelectorAll('input[name="colegio"]').forEach(r => r.addEventListener("change", vColegio));
+    document.querySelectorAll(".c").forEach(c => c.addEventListener("change", () => { calcularTotal(); vCursos(); }));
+    document.querySelectorAll(".t").forEach(t => t.addEventListener("change", vTurnos));
+
+    function mostrarResumen() {
+      const cursos = marcados(".c").map(c => c.value);
+      const turnos = marcados(".t").map(t => t.value);
+
+      const secciones = [
+        ["Datos del alumno", [
+          ["Documento", radio("tipoDoc").value + " " + $("doc").value],
+          ["Nombres", $("nombres").value.trim()],
+          ["Apellidos", $("apellidos").value.trim()],
+          ["Fecha de nacimiento", $("fecha").value],
+          ["Edad al 1 de octubre", edadAl1Oct() + " años"],
+          ["Correo", $("correo").value],
+          ["Celular", $("celular").value],
+          ["Sexo", radio("sexo").value],
+          ["Colegio de procedencia", radio("colegio").value]
+        ]],
+        ["Datos del apoderado", [
+          ["Nombres", $("aNombres").value.trim()],
+          ["Apellidos", $("aApellidos").value.trim()],
+          ["Parentesco", $("aParentesco").value],
+          ["DNI", $("aDoc").value],
+          ["Celular", $("aCelular").value],
+          ["Correo", $("aCorreo").value]
+        ]],
+        ["Carrera", [["Carrera elegida", $("carrera").value]]],
+        ["Cursos y turnos", [
+          ["Cursos (" + cursos.length + ")", cursos.join(", ")],
+          ["Turnos", turnos.join(", ")]
+        ]]
+      ];
+
+      const r = $("resumen");
+      r.innerHTML = "";
+      const titulo = document.createElement("h2");
+      titulo.textContent = "RESUMEN DE MATRÍCULA";
+      r.appendChild(titulo);
+
+      secciones.forEach(([nombre, filas]) => {
+        const h = document.createElement("h3");
+        h.textContent = nombre;
+        r.appendChild(h);
+        filas.forEach(([etiqueta, valor]) => {
+          const p = document.createElement("p");
+          const b = document.createElement("b");
+          b.textContent = etiqueta + ": ";
+          p.appendChild(b);
+          p.appendChild(document.createTextNode(valor));
+          r.appendChild(p);
+        });
+      });
+
+      const t = document.createElement("p");
+      t.className = "total";
+      t.textContent = "TOTAL A PAGAR: S/ " + (cursos.length * 100).toFixed(2);
+      r.appendChild(t);
+
+      r.style.display = "block";
+      r.scrollIntoView({ behavior: "smooth" });
+    }
+
+    $("form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const resultados = [
+        vDoc(), vNombres(), vApellidos(), vFecha(), vCorreo(), vCelular(), vSexo(), vColegio(),
+        vANombres(), vAApellidos(), vAParentesco(), vADoc(), vACelular(), vACorreo(),
+        vCarrera(), vCursos(), vTurnos()
+      ];
+      if (resultados.every(Boolean)) {
+        mostrarResumen();
+      } else {
+        const primero = document.querySelector(".invalido") || document.querySelector(".error:not(:empty)");
+        if (primero) primero.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+
+    $("form").addEventListener("reset", () => {
+      document.querySelectorAll(".error").forEach(p => p.textContent = "");
+      document.querySelectorAll(".invalido").forEach(i => i.classList.remove("invalido"));
+      $("resumen").style.display = "none";
+      setTimeout(() => { calcularTotal(); ajustarTipoDoc(); }, 0);
+    });
+
+    $("btnImprimir").addEventListener("click", () => {
+      if ($("resumen").style.display !== "block") {
+        alert("Primero complete el formulario y presione MATRICULARSE.");
+        return;
+      }
+      window.print();
+    });
+  </script>
+
+</body>
+</html>
